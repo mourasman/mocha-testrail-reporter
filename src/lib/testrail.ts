@@ -1,68 +1,27 @@
-import request = require("unirest");
 import {TestRailOptions, TestRailResult} from "./testrail.interface";
+import Axios, {AxiosInstance} from "axios";
 
 /**
  * TestRail basic API wrapper
  */
 export class TestRail {
-    private base: String;
+    private readonly base: String;
+    private request: AxiosInstance;
 
     constructor(private options: TestRailOptions) {
         // compute base url
         this.base = `https://${options.domain}/index.php`;
-    }
-
-    private _post(api: String, body: any, callback: Function, error?: Function) {
-        var req = request("POST", this.base)
-            .query(`/api/v2/${api}`)
-            .headers({
-                "content-type": "application/json"
-            })
-            .type("json")
-            .send(body)
-            .auth(this.options.username, this.options.password)
-            .end((res) => {
-                if (res.error) {
-                    console.log("Error: %s", JSON.stringify(res.body));
-                    if (error) {
-                        error(res.error);
-                    } else {
-                        throw new Error(res.error);
-                    }
-                }
-                callback(res.body);
-            });
-    }
-
-    private _get(api: String, callback: Function, error?: Function) {
-        var req = request("GET", this.base)
-            .query(`/api/v2/${api}`)
-            .headers({
-                "content-type": "application/json"
-            })
-            .type("json")
-            .auth(this.options.username, this.options.password)
-            .end((res) => {
-                if (res.error) {
-                    console.log("Error: %s", JSON.stringify(res.body));
-                    if (error) {
-                        error(res.error);
-                    } else {
-                        throw new Error(res.error);
-                    }
-                }
-                callback(res.body);
-            });
+        this.request = Axios.create();
     }
 
     /**
      * Fetchs test cases from projet/suite based on filtering criteria (optional)
-     * @param {{[p: string]: number[]}} filters
+     * @param filters
      * @param {Function} callback
      */
     public fetchCases(filters?: { [key: string]: number[] }, callback?: Function): void {
         let filter = "";
-        if(filters) {
+        if (filters) {
             for (var key in filters) {
                 if (filters.hasOwnProperty(key)) {
                     filter += "&" + key + "=" + filters[key].join(",");
@@ -105,5 +64,49 @@ export class TestRail {
                 }
             })
         });
+    }
+
+    private _post(api: String, body: any, callback: Function, error?: Function) {
+        this.request.post(`${this.base}?api/v2/${api}`, body, {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            auth: {
+                username: this.options.username,
+                password: this.options.password
+            }
+        }).then((res) => {
+                if (res.status != 200) {
+                    console.log("Error: %s", JSON.stringify(res.data));
+                    if (error) {
+                        error(res.data);
+                    } else {
+                        throw new Error(res.data);
+                    }
+                }
+                callback(res.data);
+            });
+    }
+
+    private _get(api: String, callback: Function, error?: Function) {
+        this.request.get(`${this.base}?api/v2/${api}`, {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            auth: {
+                username: this.options.username,
+                password: this.options.password
+            }
+        }).then((res) => {
+                if (res.data) {
+                    console.log("Error: %s", JSON.stringify(res.data));
+                    if (error) {
+                        error(res.data);
+                    } else {
+                        throw new Error(res.data);
+                    }
+                }
+                callback(res.data);
+            });
     }
 }
