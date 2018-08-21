@@ -1,7 +1,7 @@
 {
-  "name": "mocha-testrail-reporter",
+  "name": "@mourasman/mocha-testrail-reporter",
   "version": "1.0.12",
-  "description": "A Testrail reporter for mocha including TestRail API basic library",
+  "description": "A Testrail reporter for mocha including TestRail API basic library. For the original library, please refer Pierre Awaragi's mocha-testrail-reporter",
   "main": "index.js",
   "private": false,
   "keywords": [
@@ -10,17 +10,17 @@
     "reporter"
   ],
   "author": {
-    "name": "Pierre Awaragi",
-    "email": "pierre@awaragi.com"
+    "name": "Ricardo Moura",
+    "email": "mail@ricardomoura.eu"
   },
   "license": "MIT",
   "readmeFilename": "README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/awaragi/mocha-testrail-reporter.git"
+    "url": "https://github.com/mourasman/mocha-testrail-reporter.git"
   },
   "bugs": {
-    "url": "https://github.com/awaragi/mocha-testrail-reporter/issues"
+    "url": "https://github.com/mourasman/mocha-testrail-reporter/issues"
   },
   "scripts": {
     "tsc": "tsc",
