@@ -33,33 +33,13 @@ export class MochaTestRailReporter extends reporters.Spec {
         runner.on('pending', (test) => {
             this.pending++;
             this.out.push(test.fullTitle() + ': pending');
+            this.buildResult(test, Status.Skipped);
         });
 
         runner.on('pass', (test) => {
             this.passes++;
             this.out.push(test.fullTitle() + ': pass');
-            let caseIds = titleToCaseIds(test.title);
-            if (caseIds.length > 0) {
-                if (test.speed === 'fast') {
-                    let results = caseIds.map(caseId => {
-                        return {
-                            case_id: caseId,
-                            status_id: Status.Passed,
-                            comment: test.title
-                        };
-                    });
-                    this.results.push(...results);
-                } else {
-                    let results = caseIds.map(caseId => {
-                        return {
-                            case_id: caseId,
-                            status_id: Status.Passed,
-                            comment: `${test.title} (${test.duration}ms)`
-                        };
-                    });
-                    this.results.push(...results);
-                }
-            }
+            this.buildResult(test, Status.Passed);
         });
 
         runner.on('fail', (test) => {
@@ -106,6 +86,21 @@ ${this.out.join('\n')}
         }
         if (options[name] == null) {
             throw new Error(`Missing ${name} value. Please update --reporter-options in mocha.opts`);
+        }
+    }
+
+    private buildResult(test, status) {
+        let caseIds = titleToCaseIds(test.title);
+        if (caseIds.length > 0) {
+            let results = caseIds.map(caseId => {
+                return {
+                    case_id: caseId,
+                    status_id: status,
+                    comment: `${test.title} (${test.duration}ms)
+${status === Status.Failed ? test.err : ''}`
+                };
+            });
+            this.results.push(...results);
         }
     }
 }
