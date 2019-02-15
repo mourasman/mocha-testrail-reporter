@@ -1,5 +1,5 @@
 import {TestRailOptions, TestRailResult} from "./testrail.interface";
-import Axios, {AxiosInstance} from "axios";
+import Axios, {AxiosInstance, AxiosPromise} from "axios";
 
 /**
  * TestRail basic API wrapper
@@ -43,31 +43,31 @@ export class TestRail {
      * @param {TestRailResult[]} results
      * @param {Function} callback
      */
-    public publish(name: string, description: string, results: TestRailResult[], callback?: Function): void {
+    public publish(name: string, description: string, results: TestRailResult[], callback?: Function): AxiosPromise<any> {
         console.log(`Publishing ${results.length} test result(s) to ${this.base}`);
 
-        this._post(`add_run/${this.options.projectId}`, {
+        return this._post(`add_run/${this.options.projectId}`, {
             "suite_id": this.options.suiteId,
             "name": name,
             "description": description,
             "assignedto_id": this.options.assignedToId,
             "include_all": true
         }, (body) => {
-            const runId = body.id
-            console.log(`Results published to ${this.base}?/runs/view/${runId}`)
-            this._post(`add_results_for_cases/${runId}`, {
+            const runId = body.id;
+            console.log(`Results published to ${this.base}?/runs/view/${runId}`);
+            return this._post(`add_results_for_cases/${runId}`, {
                 results: results
             }, (body) => {
                 // execute callback if specified
                 if (callback) {
-                    callback();
+                    return callback(body);
                 }
             })
         });
     }
 
     private _post(api: String, body: any, callback: Function, error?: Function) {
-        this.request.post(`${this.base}?api/v2/${api}`, body, {
+        return this.request.post(`${this.base}?api/v2/${api}`, body, {
             headers: {
                 "Content-Type": "application/json"
             },
@@ -79,12 +79,12 @@ export class TestRail {
                 if (res.status != 200) {
                     console.log("Error: %s", JSON.stringify(res.data));
                     if (error) {
-                        error(res.data);
+                        return error(res.data);
                     } else {
                         throw new Error(res.data);
                     }
                 }
-                callback(res.data);
+                return callback(res.data);
             });
     }
 

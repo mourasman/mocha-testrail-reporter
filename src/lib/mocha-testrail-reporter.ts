@@ -76,7 +76,7 @@ Total: ${total}
 Execution details:
 ${this.out.join('\n')}                     
 `;
-            new TestRail(reporterOptions).publish(name, description, this.results);
+            return new TestRail(reporterOptions).publish(name, description, this.results);
         });
     }
 
