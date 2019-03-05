@@ -29,8 +29,9 @@
     "build": "npm run clean && npm run tsc"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "btoa": "^1.1.2",
-    "axios": "^0.18.0"
+    "sync-request": "^6.0.0"
   },
   "peerDependencies": {
     "mocha": "^3 || ^2.2.5"

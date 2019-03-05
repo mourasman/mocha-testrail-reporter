@@ -65,8 +65,8 @@ ${test.err}`
             }
             let executionDateTime = new Date().toISOString();
             let total = this.passes + this.fails + this.pending;
-            let name = `Automated test run ${executionDateTime}`;
-            let description = `Automated test run executed on ${executionDateTime}
+            let name = reporterOptions.testrunName || `Automated test run ${executionDateTime}`;
+            let description = reporterOptions.testrunDescription || `Automated test run executed on ${executionDateTime}
 Execution summary:
 Passes: ${this.passes}
 Fails: ${this.fails}
@@ -76,7 +76,7 @@ Total: ${total}
 Execution details:
 ${this.out.join('\n')}                     
 `;
-            return new TestRail(reporterOptions).publish(name, description, this.results);
+            return new TestRail(reporterOptions).publish(name, description, this.results, () => runner.emit('testrailResultsPublished'));
         });
     }
 
